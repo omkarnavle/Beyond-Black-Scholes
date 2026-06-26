@@ -1,0 +1,305 @@
+---
+title: "Untitled"
+author: "OMKAR"
+date: "2025-11-06"
+output: word_document
+---
+
+
+```{r}
+
+#for T=1 week
+
+library(DoE.base)
+library(ggplot2)
+# Create the data (without d1, d2, Exp_No)
+So <- c(945, 945, 945, 964, 964, 964, 983, 983, 983)
+K <- c(940, 965, 990, 940, 965, 990, 940, 965, 990)
+r <- c(0.045, 0.065, 0.075, 0.065, 0.075, 0.045, 0.075, 0.045, 0.065)
+sigma <- c(0.15, 0.2, 0.25, 0.25, 0.15, 0.2, 0.2, 0.25, 0.15)
+BS <- c(466.1991753, 459.0597436, 454.8062531, 479.4440902, 
+        473.7639579, 466.4841851, 495.7438806, 487.1454002, 480.7385638)
+
+# Combine into dataframe
+data <- data.frame(So, K, r, sigma, BS)
+print(data)
+
+#-----------------------------------------------------------
+# Step 1: Calculate Signal-to-Noise Ratio (Larger-the-better)
+# Because higher BS value = better option value
+# Formula: S/N = -10 * log10(mean(1 / y^2))
+#-----------------------------------------------------------
+
+data$SN_ratio <- -10 * log10(1 / (data$BS^2))
+print(data)
+
+#-----------------------------------------------------------
+# Step 2: Analyze mean S/N ratios for each factor
+#-----------------------------------------------------------
+
+So_SN <- aggregate(data$SN_ratio, by = list(data$So), FUN = mean)
+colnames(So_SN) <- c("So", "Mean_SN")
+
+K_SN <- aggregate(data$SN_ratio, by = list(data$K), FUN = mean)
+colnames(K_SN) <- c("K", "Mean_SN")
+
+r_SN <- aggregate(data$SN_ratio, by = list(data$r), FUN = mean)
+colnames(r_SN) <- c("r", "Mean_SN")
+
+sigma_SN <- aggregate(data$SN_ratio, by = list(data$sigma), FUN = mean)
+colnames(sigma_SN) <- c("sigma", "Mean_SN")
+
+print(So_SN)
+print(K_SN)
+print(r_SN)
+print(sigma_SN)
+
+#-----------------------------------------------------------
+# Step 3: Plot main effects for each parameter
+#-----------------------------------------------------------
+
+# So
+plot(1:3, So_SN$Mean_SN, type = "b", pch = 19, col = "red",
+     xaxt = "n", xlab = "Stock Price (So)", ylab = "S/N Ratio",
+     main = "Main Effect - So")
+axis(1, at = 1:3, labels = So_SN$So)
+
+# K
+plot(1:3, K_SN$Mean_SN, type = "b", pch = 19, col = "green",
+     xaxt = "n", xlab = "Strike Price (K)", ylab = "S/N Ratio",
+     main = "Main Effect - K")
+axis(1, at = 1:3, labels = K_SN$K)
+
+# r
+plot(1:3, r_SN$Mean_SN, type = "b", pch = 19, col = "blue",
+     xaxt = "n", xlab = "Interest Rate (r)", ylab = "S/N Ratio",
+     main = "Main Effect - r")
+axis(1, at = 1:3, labels = r_SN$r)
+
+# sigma
+plot(1:3, sigma_SN$Mean_SN, type = "b", pch = 19, col = "purple",
+     xaxt = "n", xlab = "Volatility (σ)", ylab = "S/N Ratio",
+     main = "Main Effect - σ")
+axis(1, at = 1:3, labels = sigma_SN$sigma)
+
+#-----------------------------------------------------------
+# Step 4: Identify best combination (highest S/N ratio)
+#-----------------------------------------------------------
+
+best_So <- So_SN$So[which.max(So_SN$Mean_SN)]
+best_K <- K_SN$K[which.max(K_SN$Mean_SN)]
+best_r <- r_SN$r[which.max(r_SN$Mean_SN)]
+best_sigma <- sigma_SN$sigma[which.max(sigma_SN$Mean_SN)]
+
+cat("Best combination:\n")
+cat("So =", best_So, "\n")
+cat("K =", best_K, "\n")
+cat("r =", best_r, "\n")
+cat("sigma =", best_sigma, "\n")
+
+# Interpretation:
+# The combination with the **highest S/N ratio** gives the 
+# most stable and optimal (largest) Black–Scholes option value.
+
+
+
+
+#for T=1 month
+
+
+# ---------------------------------------------
+# Step 1: Input Data (updated values)
+# ---------------------------------------------
+So <- c(945, 945, 945, 964, 964, 964, 983, 983, 983)
+K <- c(940, 965, 990, 940, 965, 990, 940, 965, 990)
+r <- c(0.045, 0.065, 0.075, 0.065, 0.075, 0.045, 0.075, 0.045, 0.065)
+sigma <- c(0.15, 0.2, 0.25, 0.25, 0.15, 0.2, 0.2, 0.25, 0.15)
+BS <- c(443.4281521, 430.0838869, 421.8755921, 461.3756042, 
+        450.5763513, 434.0991302, 484.6512162, 466.0220256, 454.1069938)
+
+# Combine into dataframe
+data <- data.frame(So, K, r, sigma, BS)
+print(data)
+
+# ---------------------------------------------
+# Step 2: Calculate Signal-to-Noise Ratio (Larger-the-better)
+# Formula: S/N = -10 * log10(mean(1 / y^2))
+# ---------------------------------------------
+data$SN_ratio <- -10 * log10(1 / (data$BS^2))
+print(data)
+
+# ---------------------------------------------
+# Step 3: Compute mean S/N ratio for each factor
+# ---------------------------------------------
+So_SN <- aggregate(data$SN_ratio, by = list(data$So), FUN = mean)
+colnames(So_SN) <- c("So", "Mean_SN")
+
+K_SN <- aggregate(data$SN_ratio, by = list(data$K), FUN = mean)
+colnames(K_SN) <- c("K", "Mean_SN")
+
+r_SN <- aggregate(data$SN_ratio, by = list(data$r), FUN = mean)
+colnames(r_SN) <- c("r", "Mean_SN")
+
+sigma_SN <- aggregate(data$SN_ratio, by = list(data$sigma), FUN = mean)
+colnames(sigma_SN) <- c("sigma", "Mean_SN")
+
+print(So_SN)
+print(K_SN)
+print(r_SN)
+print(sigma_SN)
+
+# ---------------------------------------------
+# Step 4: Plot Main Effects for S/N Ratio
+# ---------------------------------------------
+# So
+plot(1:3, So_SN$Mean_SN, type = "b", pch = 19, col = "red",
+     xaxt = "n", xlab = "Stock Price (So)", ylab = "S/N Ratio (dB)",
+     main = "Main Effect - So")
+axis(1, at = 1:3, labels = So_SN$So)
+
+# K
+plot(1:3, K_SN$Mean_SN, type = "b", pch = 19, col = "green",
+     xaxt = "n", xlab = "Strike Price (K)", ylab = "S/N Ratio (dB)",
+     main = "Main Effect - K")
+axis(1, at = 1:3, labels = K_SN$K)
+
+# r
+plot(1:3, r_SN$Mean_SN, type = "b", pch = 19, col = "blue",
+     xaxt = "n", xlab = "Interest Rate (r)", ylab = "S/N Ratio (dB)",
+     main = "Main Effect - r")
+axis(1, at = 1:3, labels = r_SN$r)
+
+# sigma
+plot(1:3, sigma_SN$Mean_SN, type = "b", pch = 19, col = "purple",
+     xaxt = "n", xlab = "Volatility (σ)", ylab = "S/N Ratio (dB)",
+     main = "Main Effect - σ")
+axis(1, at = 1:3, labels = sigma_SN$sigma)
+
+# ---------------------------------------------
+# Step 5: Identify Best Combination (highest mean S/N)
+# ---------------------------------------------
+best_So <- So_SN$So[which.max(So_SN$Mean_SN)]
+best_K <- K_SN$K[which.max(K_SN$Mean_SN)]
+best_r <- r_SN$r[which.max(r_SN$Mean_SN)]
+best_sigma <- sigma_SN$sigma[which.max(sigma_SN$Mean_SN)]
+
+cat("Best combination based on highest S/N ratio:\n")
+cat("So =", best_So, "\n")
+cat("K =", best_K, "\n")
+cat("r =", best_r, "\n")
+cat("sigma =", best_sigma, "\n")
+
+# ---------------------------------------------
+# Step 6: Interpretation Guide
+# ---------------------------------------------
+cat("\nInterpretation Notes:\n")
+cat("- Higher S/N ratio means higher and more consistent BS values.\n")
+cat("- The level of each factor with the highest mean S/N gives the best robustness.\n")
+cat("- The steepest line in the main effect plots indicates the most influential factor.\n")
+
+
+
+
+
+#for T=3 months
+
+# ------------------------------------------------------------
+# TAGUCHI S/N RATIO ANALYSIS FOR BLACK–SCHOLES MODEL (T = 3 Months)
+# ------------------------------------------------------------
+
+# Input data
+So <- c(945, 945, 945, 964, 964, 964, 983, 983, 983)
+K <- c(940, 965, 990, 940, 965, 990, 940, 965, 990)
+r <- c(0.045, 0.065, 0.075, 0.065, 0.075, 0.045, 0.075, 0.045, 0.065)
+sigma <- c(0.15, 0.2, 0.25, 0.25, 0.15, 0.2, 0.2, 0.25, 0.15)
+BS <- c(386.5884927, 369.8371938, 358.8392006, 413.0568184,
+        398.0145278, 366.8620277, 444.0287332, 411.3118271, 395.5709381)
+
+# Combine into dataframe
+data <- data.frame(So, K, r, sigma, BS)
+print(data)
+
+# ------------------------------------------------------------
+# Step 1: Calculate Signal-to-Noise Ratio (Larger-the-better)
+# Formula: S/N = -10 * log10(mean(1 / y^2))
+# ------------------------------------------------------------
+data$SN_ratio <- -10 * log10(1 / (data$BS^2))
+print(data)
+
+# ------------------------------------------------------------
+# Step 2: Compute mean S/N ratio for each factor level
+# ------------------------------------------------------------
+So_SN <- aggregate(data$SN_ratio, by = list(data$So), FUN = mean)
+colnames(So_SN) <- c("So", "Mean_SN")
+
+K_SN <- aggregate(data$SN_ratio, by = list(data$K), FUN = mean)
+colnames(K_SN) <- c("K", "Mean_SN")
+
+r_SN <- aggregate(data$SN_ratio, by = list(data$r), FUN = mean)
+colnames(r_SN) <- c("r", "Mean_SN")
+
+sigma_SN <- aggregate(data$SN_ratio, by = list(data$sigma), FUN = mean)
+colnames(sigma_SN) <- c("sigma", "Mean_SN")
+
+print(So_SN)
+print(K_SN)
+print(r_SN)
+print(sigma_SN)
+
+# ------------------------------------------------------------
+# Step 3: Plot main effects for each factor
+# ------------------------------------------------------------
+
+# So
+plot(1:3, So_SN$Mean_SN, type = "b", pch = 19, col = "red",
+     xaxt = "n", xlab = "Stock Price (So)", ylab = "S/N Ratio (dB)",
+     main = "Main Effect - So (T = 3 Months)")
+axis(1, at = 1:3, labels = So_SN$So)
+
+# K
+plot(1:3, K_SN$Mean_SN, type = "b", pch = 19, col = "green",
+     xaxt = "n", xlab = "Strike Price (K)", ylab = "S/N Ratio (dB)",
+     main = "Main Effect - K (T = 3 Months)")
+axis(1, at = 1:3, labels = K_SN$K)
+
+# r
+plot(1:3, r_SN$Mean_SN, type = "b", pch = 19, col = "blue",
+     xaxt = "n", xlab = "Interest Rate (r)", ylab = "S/N Ratio (dB)",
+     main = "Main Effect - r (T = 3 Months)")
+axis(1, at = 1:3, labels = r_SN$r)
+
+# sigma
+plot(1:3, sigma_SN$Mean_SN, type = "b", pch = 19, col = "purple",
+     xaxt = "n", xlab = "Volatility (σ)", ylab = "S/N Ratio (dB)",
+     main = "Main Effect - σ (T = 3 Months)")
+axis(1, at = 1:3, labels = sigma_SN$sigma)
+
+# ------------------------------------------------------------
+# Step 4: Identify best combination (highest mean S/N)
+# ------------------------------------------------------------
+best_So <- So_SN$So[which.max(So_SN$Mean_SN)]
+best_K <- K_SN$K[which.max(K_SN$Mean_SN)]
+best_r <- r_SN$r[which.max(r_SN$Mean_SN)]
+best_sigma <- sigma_SN$sigma[which.max(sigma_SN$Mean_SN)]
+
+cat("Best combination (T = 3 Months):\n")
+cat("So =", best_So, "\n")
+cat("K =", best_K, "\n")
+cat("r =", best_r, "\n")
+cat("sigma =", best_sigma, "\n")
+
+# ------------------------------------------------------------
+# Step 5: Interpretation
+# ------------------------------------------------------------
+cat("\nInterpretation Notes:\n")
+cat("- Higher S/N ratio → higher and more consistent BS value.\n")
+cat("- Best combination = levels giving maximum S/N.\n")
+cat("- Steeper slope in main effect plot → more influential factor.\n")
+
+
+
+
+
+
+
+```
