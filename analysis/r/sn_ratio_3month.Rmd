@@ -1,0 +1,142 @@
+---
+title: "3 months"
+author: "OMKAR"
+date: "2025-11-06"
+output: word_document
+---
+
+
+```{r }
+# -------------------------------
+# Data for T = 3 Month Expiry
+# -------------------------------
+
+So <- c(978.4665, 978.4665, 978.4665,988.35, 988.35, 988.35,998.2335, 998.2335)
+K <- c(968.583, 988.35, 1008.117,968.583, 988.35, 1008.117,968.583, 988.35)
+r <- c(0.045, 0.055, 0.065,0.055, 0.065, 0.045,0.065, 0.045)
+sigma <- c(0.15, 0.2, 0.25,0.25, 0.15, 0.2,0.2, 0.25)
+BS <- c(40.21045195, 40.4220316, 42.25540863,66.27750015, 37.65727248, 35.14294582,65.26672271, 59.98612722)
+
+# Combine into dataframe
+data <- data.frame(So, K, r, sigma, BS)
+print(data)
+
+#-----------------------------------------------------------
+# Step 1: Calculate Signal-to-Noise Ratio (Larger-the-better)
+# Because higher BS value = better option value
+# Formula: S/N = -10 * log10(mean(1 / y^2))
+#-----------------------------------------------------------
+
+data$SN_ratio <- -10 * log10(1 / (data$BS^2))
+print(data)
+
+#-----------------------------------------------------------
+# Step 2: Analyze mean S/N ratios for each factor
+#-----------------------------------------------------------
+
+So_SN <- aggregate(data$SN_ratio, by = list(data$So), FUN = mean)
+colnames(So_SN) <- c("So", "Mean_SN")
+
+K_SN <- aggregate(data$SN_ratio, by = list(data$K), FUN = mean)
+colnames(K_SN) <- c("K", "Mean_SN")
+
+r_SN <- aggregate(data$SN_ratio, by = list(data$r), FUN = mean)
+colnames(r_SN) <- c("r", "Mean_SN")
+
+sigma_SN <- aggregate(data$SN_ratio, by = list(data$sigma), FUN = mean)
+colnames(sigma_SN) <- c("sigma", "Mean_SN")
+
+print(So_SN)
+print(K_SN)
+print(r_SN)
+print(sigma_SN)
+
+#-----------------------------------------------------------
+# Step 3: Plot main effects for each parameter
+#-----------------------------------------------------------
+
+par(mfrow=c(2,2))
+# So
+plot(1:3, So_SN$Mean_SN, type = "b", pch = 19, col = "red",
+     xaxt = "n", xlab = "Stock Price (So)", ylab = "S/N Ratio",
+     main = "Main Effect - So")
+axis(1, at = 1:3, labels = So_SN$So)
+
+# K
+plot(1:3, K_SN$Mean_SN, type = "b", pch = 19, col = "green",
+     xaxt = "n", xlab = "Strike Price (K)", ylab = "S/N Ratio",
+     main = "Main Effect - K")
+axis(1, at = 1:3, labels = K_SN$K)
+
+# r
+plot(1:3, r_SN$Mean_SN, type = "b", pch = 19, col = "blue",
+     xaxt = "n", xlab = "Interest Rate (r)", ylab = "S/N Ratio",
+     main = "Main Effect - r")
+axis(1, at = 1:3, labels = r_SN$r)
+
+# sigma
+plot(1:3, sigma_SN$Mean_SN, type = "b", pch = 19, col = "purple",
+     xaxt = "n", xlab = "Volatility (σ)", ylab = "S/N Ratio",
+     main = "Main Effect - σ")
+axis(1, at = 1:3, labels = sigma_SN$sigma)
+
+#-----------------------------------------------------------
+# Step 4: Identify best combination (highest S/N ratio)
+#-----------------------------------------------------------
+
+best_So <- So_SN$So[which.max(So_SN$Mean_SN)]
+best_K <- K_SN$K[which.max(K_SN$Mean_SN)]
+best_r <- r_SN$r[which.max(r_SN$Mean_SN)]
+best_sigma <- sigma_SN$sigma[which.max(sigma_SN$Mean_SN)]
+
+cat("Best combination:\n")
+cat("So =", best_So, "\n")
+cat("K =", best_K, "\n")
+cat("r =", best_r, "\n")
+cat("sigma =", best_sigma, "\n")
+
+# Interpretation:
+# The combination with the **highest S/N ratio** gives the 
+# most stable and optimal (largest) Black–Scholes option value.
+
+# ------------------------------------------------------------
+# Step 1: Calculate Signal-to-Noise Ratio (Larger-the-Better)
+# ------------------------------------------------------------
+data$SN_ratio <- -10 * log10(1 / (data$BS^2))
+
+# ------------------------------------------------------------
+# Step 2: Function to Generate Response Table for Any Metric
+# ------------------------------------------------------------
+generate_response_table <- function(data, response_col) {
+  factors <- c("So", "K", "r", "sigma")
+  tables <- list()
+  
+  for (factor in factors) {
+    means <- aggregate(data[[response_col]], by = list(data[[factor]]), FUN = mean)
+    colnames(means) <- c("Level", "Mean")
+    delta <- max(means$Mean) - min(means$Mean)
+    tables[[factor]] <- data.frame(Factor = factor, Delta = round(delta, 4))
+  }
+  
+  result <- do.call(rbind, tables)
+  result$Rank <- rank(-result$Delta)  # Rank by descending Delta
+  return(result)
+}
+
+# ------------------------------------------------------------
+# Step 3: Generate Tables
+# ------------------------------------------------------------
+sn_table <- generate_response_table(data, "SN_ratio")
+mean_table <- generate_response_table(data, "BS")
+
+# ------------------------------------------------------------
+# Step 4: Display Results
+# ------------------------------------------------------------
+cat("\nResponse Table for Signal-to-Noise Ratios (Larger-the-Better)\n")
+print(sn_table, row.names = FALSE)
+
+cat("\nResponse Table for Means\n")
+print(mean_table, row.names = FALSE)
+
+```
+
