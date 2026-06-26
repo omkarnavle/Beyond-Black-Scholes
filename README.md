@@ -29,11 +29,7 @@ The study applies the **Taguchi L9 orthogonal array** to the **Black-Scholes Mod
 
 | Name | Roll No. | SAP ID |
 |---|---|---|
-| Eashal D'Britto | A014 | 86062500061 |
-| Samiksha Kabra | A023 | 86062500017 |
 | Omkar Navle | A037 | 86062500050 |
-| Liz Rodrigues | A050 | 86062500051 |
-| Mohammed Aamir Vahedna | A061 | 86062500028 |
 
 **Mentor:** Dr. Pradnya Khandeparkar  
 **RT Professor:** Mr. Vaibhav Vasundekar  
